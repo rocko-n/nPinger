@@ -13,7 +13,7 @@ var upArr;                                                  // arr of new up Eve
 var downArr;                                                // arr of new down Events
 var htmlStatus;                                             // message of current problems in html
 var lastEvent;                                              // last Event time, for cheking if something new has happend (for clients) 
-var UpdateOld;                                              // prev time when ping is apply, needed for force_update only
+var UpdateOld;                                              // prev time when ping is apply, need it for force_update only
 var htmlStatusAddSortUp;                                    // sorted  message of current problems in html (method 'addrup')
 var htmlStatusAddSortDown;                                  // sorted  message of current problems in html (method 'addrdown')
 
@@ -250,11 +250,11 @@ function compare(newArr){                           // newArr - current whole do
 //Ping all hosts and if something new has happend - send message and form html response.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function PingAll() {
-        var UpdateNow = new Date;                                                   // needed for force_update only
+        var UpdateNow = new Date;                                                   // need it for force_update only
 	var fallen = [];                                                            // current arr of whole downlist
         var PromiseArr = [];                                                        // arr of promises, for nextstep
-        var prom;                                                                   // promise, needed fo force update only
-           if ((UpdateOld == undefined) || (UpdateNow-UpdateOld>15000)) {           // needed for force_update only
+        var prom;                                                                   // promise, need it for force update only
+           if ((UpdateOld == undefined) || (UpdateNow-UpdateOld>15000)) {           // need it for force_update only
                console.log((UpdateNow-UpdateOld)/1000 + ' s');                                   
                UpdateOld = UpdateNow;  
 //move on hosts database and ping all hosts, forming arr of fallen hosts, forming arr of promises
@@ -317,7 +317,7 @@ function PingAll() {
                                           writeFile('appl/pinger/log.txt', htmlLog);
                                        }; 
                });
-               return prom;                          //return promise, needed for force update
+               return prom;                          //return promise, need it for force update
            } else {                                  
                prom = Promise.resolve();
                return prom;                          //return resolved promise, if  PingAll has applied less then 15 seconds before
