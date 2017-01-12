@@ -1,0 +1,33 @@
+table.problems {
+  width: 100%;
+  table-layout: fixed;
+}
+td {
+  font-family: Verdana, Arial, Helvetica, sans-serif; 
+}
+.down {
+  background-color: #f88888;
+}
+#totalsOk {
+  background-color: #88d066;
+}
+#totalsDown {
+  background-color: #f88888;
+}
+#totalsWarning {
+  background-color: #ffff00;
+}
+#adsort:hover {
+  color: red;
+}
+#adsort {
+  color: blue;
+  cursor: pointer;
+}
+#evsort:hover {
+  color: red;
+}
+#evsort {
+  color: blue;
+  cursor: pointer;
+}
