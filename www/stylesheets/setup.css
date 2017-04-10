@@ -1,0 +1,27 @@
+body {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+#add {
+    background-color: #f8f17b;
+}
+#remove {
+    background-color: #abd0bd;
+}
+#refresh {
+    background-color: #ccf8c5;
+}
+#mail {
+    background-color: #ffe9e4;
+}
+#tooltip {
+    z-index: 1;
+    position: absolute;
+    display: none;
+    top:0px;
+    left:0px;
+    background-color: #000;
+    color: #feeaa1;
+    font-size: 17px;
+    padding: 6px;
+    border-radius: 5px;
+}

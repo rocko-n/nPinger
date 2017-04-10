@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  	    <meta charset="utf-8">
+  	    <title>Setup</title>
+        <link rel="stylesheet" href="stylesheets/setup.css">
+  	    <script type="text/javascript" src="scripts/jquery.js"></script>
+    </head>
+    <body>
+        <div id="tooltip">
+        </div>
+        <div align="left">
+            <a href="index.html"><button>PINGER</button></a>
+            <a href="log.html"><button>EVENT_LOG</button></a>
+        </div>
+        <div>
+            <text>Select option</text>
+            <select id="option">
+                <option value="add">Add switch to monitoring</option>
+                <option value="remove">Remove switch from monitoring</option>
+                <option value="refresh">Change refresh time</option>
+                <option value="mail">Change mail options</option>
+            </select>
+        </div>
+        <hr>
+        <div id="add">
+            <text>Add switch to monitoring(ip/addr)</text>
+            <hr>
+            <input id="ip" type="text" maxlength="15" size="20" value="172.**.***.***"><text>Ip</text>
+            <br>
+            <input id="addr" type="text" size="20" value="Address"><text>Address</text>
+            <br>
+            <button id="addbut">Send</button>
+        </div>
+        <div id="remove">
+            <text>Remove switch from monitoring(ip)</text>
+            <hr>
+            <input id="remip" type="text" maxlength="15" size="20" value="172.**.***.***"><text>Ip</text>
+            <br>
+            <button id="rembut">Send</button>
+        </div>
+        <div id="refresh">
+            <text>Change refresh time(sec)</text>
+            <hr>
+            <input id="time" type="text" maxlength="4" size="20"><text>Sec</text>
+            <br>
+            <button id="refbut">Send</button>
+        </div>
+        <div id="mail">
+            <text>Change mail options</text>
+            <hr>
+            <input id="smtp" type="text" maxlength="40" size="20"><text>SMTP server</text>
+            <br>
+            <input id="port" type="text" maxlength="5" size="20"><text>SMTP port</text>
+            <br>
+            <input id="ssl" type="text" maxlength="5" size="20"><text>SSL(true/false)</text>
+            <br>
+            <input id="login" type="text" maxlength="30" size="20"><text>Login</text>
+            <br>
+            <input id="pass" type="password" maxlength="30" size="20"><text>Password</text>
+            <br>
+            <input id="from" type="text" maxlength="40" size="20"><text>Sender</text>
+            <br>
+            <input id="to" type="text" maxlength="40" size="20"><text>Send to</text>
+            <br>
+            <input id="cc" type="text" maxlength="80" size="20"><text>Copy to(,)</text>
+            <br>
+            <input id="subj" type="text" maxlength="30" size="20"><text>Subject</text>
+            <br>
+            <button id="mailbut">Send</button>
+        </div>
+        <script src="scripts/setup.js"></script>
+    </body>
+</html>
+
