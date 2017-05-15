@@ -31,32 +31,37 @@ $(function () {
      * @type {String}
      */
     var infoText;
+
     /**Function calls*/
     ifSomethingHappend();
+
     /**Get config*/
     $.post('/get_conf', '', function (data) {
         /**parse JSON string to object*/
         config = JSON.parse(data);
         setInterval(ifSomethingHappend, config.refreshTime*1000);
     });
+
     /**Change info message*/
     $('tbody#currentstats').on("click", ".edit", function () {
         counterEdit++;
         var _this = $(this);
-        if ( counterEdit == 1 ) {
+
+        if (counterEdit == 1) {
             infoText = _this.siblings('text').html();
             _this.siblings('text').remove();
             _this.closest('td').prepend( '<input type="text" size="20" maxlength="40">' );
             _this.siblings('input').val(infoText).focus();
             _this.html('send');
-        };
-        if ( counterEdit > 1 && _this.html() == 'send' && infoText != _this.siblings('input').val().trim() ) {
+        }
+        if (counterEdit > 1 && _this.html() == 'send' && infoText != _this.siblings('input').val().trim()) {
             infoText = _this.siblings('input').val().trim();
             var unit = _this.attr("data-unit");
             var sendData = {
                 info: infoText,
                 unit: unit
             };
+
             $.post('/add_info', sendData, function (data) {
                 _this.siblings('input').remove();
                 _this.closest('td').prepend('<text>' + infoText + '</text>');
@@ -64,57 +69,70 @@ $(function () {
                 lastEvent = data;
                 counterEdit = 0;
             });
-        } else if ( counterEdit > 1 && _this.html() == 'send' && infoText == _this.siblings('input').val().trim() ) {
+
+        } else if (counterEdit > 1 && _this.html() == 'send' && infoText == _this.siblings('input').val().trim()) {
             _this.siblings('input').remove();
             _this.closest('td').prepend('<text>' + infoText + '</text>');
             _this.html('edit');
             counterEdit = 0;
-        } else if ( counterEdit > 1 && _this.html() != 'send' ) {
+        } else if (counterEdit > 1 && _this.html() != 'send') {
             alert('Wrong field');
-        };
+        }
     });
     /**Sorting data*/
     $('#adsort').on("click", function () {
         counter++;
-        if ( counter == 1 ) {
-            if ( sortBy.id == 'addrup' ) {
+
+        if (counter === 1) {
+            if (sortBy.id === 'addrup') {
                 sortBy.id = 'addrdown';
             } else {
                 sortBy.id = 'addrup';
-            };
+            }
+
             recieveStatus().then(function () {
+
                 $("td.duration").each(function () {
                     var time = serverTime - new Date($(this).attr("data-start"));
                     $(this).text(timer(time));
                 });
+
                 counter = 0;
             });
-        };
+        }
+
     });
     $('#evsort').on("click", function () {
         counter++;
-        if ( counter == 1 ) {
-            if ( sortBy.id == 'evup' ) {
+
+        if (counter === 1) {
+            if (sortBy.id === 'evup') {
                 sortBy.id = 'evdown';
             } else {
                 sortBy.id = 'evup';
-            };
+            }
+
             recieveStatus().then(function () {
                 $("td.duration").each(function () {
                     var time = serverTime - new Date($(this).attr("data-start"));
                     $(this).text(timer(time));
                 });
+
                 counter = 0;
             });
-        };
+        }
+
     });
     /**Listen force update event -> recieve fresh news about status*/
     $('#force').on('click', function () {
         counter++;
-        if ( counter != 1 ) {
+
+        if (counter !== 1) {
             return;
-        };
+        }
+
         $('#force').html('UPDATING');
+
         $.post('/force_update', sortBy, function (data) {
             counterEdit = 0;
             serverTime = new Date(data.now);
@@ -129,6 +147,7 @@ $(function () {
                 $(this).text(timer(time));
             });
         });
+
     });
     /**
      * Convert time from Date to xxdxxhxxmxxs
@@ -138,15 +157,16 @@ $(function () {
     function timer(time) {
         time = (time/1000).toFixed();
         var resTime;
-        if ( time < 60 ) {
+        if (time < 60) {
             resTime = time + 's';
-        } else if ( time >= 60 && time < 3600 ) {
+        } else if (time >= 60 && time < 3600) {
             resTime = (time/60).toFixed() + 'm' + time % 60 + 's';
-        } else if ( time >= 3600 && time < 86400 ) {
+        } else if (time >= 3600 && time < 86400) {
             resTime = (time/3600).toFixed() + 'h' + ((time % 3600)/60).toFixed() + 'm' + (time % 3600) % 60 + 's';
         } else {
             resTime = (time/86400).toFixed() + 'd' + ((time % 86400)/3600).toFixed() + 'h' + (((time % 86400)%3600)/60).toFixed() + 'm' + ((time % 86400) % 3600) % 60 + 's';
-        };
+        }
+
         return resTime;
     }
     /**
@@ -154,40 +174,47 @@ $(function () {
      * @returns {Promise}
      */
     function recieveStatus() {
-        var prom = $.post('/status', sortBy, function (data) {
+
+        return $.post('/status', sortBy, function (data) {
             counterEdit = 0;
             serverTime = new Date(data.now);
             $('#totalsOk').html(data.ok);
             $('#totalsDown').html(data.down);
-            $('#currentstats').html(data.html)
+            $('#currentstats').html(data.html);
             console.log('updated');
         });
-        return prom;
+
     }
     /**
      * Recieve lastEvent time from server and if something new has happend - recieve new status-data
      * @returns {Promise}
      */
     function ifSomethingHappend() {
-        var prom = $.post('/chek', 'give_me_lastEvent', function (data) {
+
+        return $.post('/chek', 'give_me_lastEvent', function (data) {
             serverTime = new Date(data.now);
-            if ( data.lastEv != lastEvent ) {
+
+            if (data.lastEv != lastEvent) {
                 lastEvent = data.lastEv;
+
                 recieveStatus().then(function () {
                     $("td.duration").each(function () {
                         var time = serverTime - new Date($(this).attr("data-start"));
                         $(this).text(timer(time));
                     });
                 });
+
             } else {
+
                 $("td.duration").each(function () {
                     var time = serverTime - new Date($(this).attr("data-start"));
                     $(this).text(timer(time));
                 });
+
                 console.log('nothing new has happend');
-            };
+            }
         });
-        return prom;
+
     }
 });
 /**
