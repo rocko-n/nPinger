@@ -80,7 +80,7 @@ function sendMail(msg) {
     var mailOptions = {
         from: config.mailOptions.from,                   // sender address
         to: config.mailOptions.to,                       // list of receivers
-        cc: config.mailOptions.cc,                       // copy to list
+        cc: config.mailOptions.cc,                       // copy_to list
         subject: config.mailOptions.subject,             // Subject line
         text: msg                                        // plaintext body
         };
@@ -258,7 +258,6 @@ function compare(newArr) {
 /**
  * Ping module -> Ping all hosts and if something new has happend - send message and form html response.
  * @returns {Promise}
- * @constructor
  */
 function pingAll() {
     /**
@@ -454,7 +453,7 @@ app.post('/set_conf', function(request, response) {
         response.send('Config changed');
 
     } else if (request.body.type == 'add') {
-        var newIpReg = new RegExp(request.body.ip);
+        var newIpReg = new RegExp('"' + request.body.ip + '"');
 
         if (newIpReg.test(JSON.stringify(arrAdIpEv))) {
             response.send('This switch is already in DB');
@@ -467,11 +466,18 @@ app.post('/set_conf', function(request, response) {
         }
 
     } else if (request.body.type == 'remove') {
+        /**
+         * Remove process status
+         * @type {boolean}
+         */
+        var status = false;
 
         for (var count = 0; count < arrAdIpEv.length; count++) {
 
             if (arrAdIpEv[count].ip == request.body.ip) {
+
                 arrAdIpEv.splice(count, 1);
+
                 oldFallen.forEach(function(unit, i) {
 
                     if (unit > count) {
@@ -483,18 +489,20 @@ app.post('/set_conf', function(request, response) {
                         if (oldFallen[i] > count) {
                             oldFallen[i] -= 1;
                         }
+
                     }
                 });
 
                 htmlStatusAddSortUp = formHtmlStatus(oldFallen, 'addrup');
                 lastEvent = new Date;
                 fs.writeFileSync(__dirname + '/db.txt', JSON.stringify(arrAdIpEv, ["address", "ip"]));
-                var status = "Success";
+                status = true;
+
                 break;
             }
         }
 
-        if (status === "Success") {
+        if (status) {
             response.send("Success");
         } else {
             response.send("Can't find this switch in DB");
