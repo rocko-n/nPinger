@@ -54,7 +54,7 @@ $(function () {
         var ip = $('#ip').val().trim();
         var addr = $('#addr').val().trim();
 
-        if (ip == '' || addr == '') {
+        if (ip === '' || addr === '') {
 
             tooltip.html('<text class="infotext">Please, write some data</text>')
                 .css({
@@ -86,7 +86,7 @@ $(function () {
     $('#rembut').click(function (event) {
         var ip = $('#remip').val().trim();
 
-        if (ip == '') {
+        if (ip === '') {
 
             tooltip.html('<text class="infotext">Please, write some data</text>')
                 .css({
@@ -154,11 +154,21 @@ $(function () {
     });
 
     $('#mailbut').click(function (event) {
-        var newString = $('#smtp').val().trim() + $('#port').val().trim() + $('#ssl').val().trim() + $('#login').val().trim() + $('#pass').val().trim() + $('#from').val().trim() + $('#to').val().trim() + $('#cc').val().trim() + $('#subj').val().trim();
+        var smtp = $('#smtp').val().trim(),
+            port = $('#port').val().trim(),
+            ssl = $('#ssl').val().trim(),
+            login = $('#login').val().trim(),
+            pass = $('#pass').val().trim(),
+            from = $('#from').val().trim(),
+            to = $('#to').val().trim(),
+            cc = $('#cc').val().trim(),
+            subj = $('#subj').val().trim();
 
-        if (prevString == newString) {
+        var newString = smtp + port + ssl + login + pass + from + to + cc + subj;
 
-            $('#tooltip').html('<text class="infotext">Noting changed</text>')
+        if (prevString === newString) {
+
+            tooltip.html('<text class="infotext">Noting changed</text>')
                 .css({
                     'top' : event.pageY + 1,
                     'left' : event.pageX + 20
@@ -168,14 +178,14 @@ $(function () {
 
         } else {
 
-            config.mailOptions.host = $('#smtp').val().trim();
-            config.mailOptions.port = $('#port').val().trim();
+            config.mailOptions.host = smtp;
+            config.mailOptions.port = port;
 
-            if ($('#ssl').val().trim() === "false") {
+            if (ssl === "false") {
 
                 config.mailOptions.secure = false;
 
-            } else if ($('#ssl').val().trim() === "true") {
+            } else if (ssl === "true") {
 
                 config.mailOptions.secure = true;
 
@@ -192,12 +202,12 @@ $(function () {
 
             }
 
-            config.mailOptions.user = $('#login').val().trim();
-            config.mailOptions.pass = $('#pass').val().trim();
-            config.mailOptions.from = $('#from').val().trim();
-            config.mailOptions.to = $('#to').val().trim();
-            config.mailOptions.cc = $('#cc').val().trim();
-            config.mailOptions.subject = $('#subj').val().trim();
+            config.mailOptions.user = login;
+            config.mailOptions.pass = pass;
+            config.mailOptions.from = from;
+            config.mailOptions.to = to;
+            config.mailOptions.cc = cc;
+            config.mailOptions.subject = subj;
             prevString = newString;
 
             $.post('/set_conf', {'jsonData': JSON.stringify(config), 'type': 'mail'}, function(res) {
