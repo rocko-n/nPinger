@@ -3,7 +3,7 @@ var fs = require('fs');
 var parser = require('body-parser');
 var app = express();
 var nodemailer = require('nodemailer');
-var ping = require('ping');
+var tcpp = require('tcp-ping');
 app.use(parser.urlencoded({ extended: false }));
 /**
  * Arr of prev system state
@@ -49,12 +49,12 @@ var htmlStatusAddSortDown;
  * configObject
  * @type {Object}
  */
-var config = JSON.parse(fs.readFileSync(__dirname + '/config.ini'));
+var config = JSON.parse(fs.readFileSync(__dirname + '/data/config.ini'));
 /**
  * Database of switches(Array of Objects)
  * @type {Array}
  */
-var arrAdIpEv = JSON.parse(fs.readFileSync(__dirname + '/db.txt'));
+var arrAdIpEv = JSON.parse(fs.readFileSync(__dirname + '/data/db.json'));
 console.log(arrAdIpEv.length);
 
 /**Function_calls.*/
@@ -286,13 +286,19 @@ function pingAll() {
         updateOld = updateNow;
         /**move on hosts database and ping all hosts, forming arr of fallen hosts, forming arr of promises*/
         arrAdIpEv.forEach(function(_switch, i) {
-            promiseArr[i] = ping.promise.probe(_switch.ip)
-                .then(function(result){
-                    if (result.alive == false) {
+            promiseArr[i] = new Promise(function(resolve) {
+                tcpp.probe(_switch.ip, 80, function(err, alive) {
+
+                    if (!alive) {
                         fallen.push(i);
                     }
+
+                    resolve();
                 });
-	    });
+            });
+
+        });
+
         /**when ping all hosts has accomplished - compare prev state and present, if something new has happend - forming messages*/
         prom = Promise.all(promiseArr)
             .then(function() {
@@ -316,53 +322,53 @@ function pingAll() {
                 if (downArr.length != 0 && upArr.length != 0) {
                     sortArr(downArr, 'addrup');
                     sortArr(upArr, 'addrup');
-                    message = '\r\n'+'IS DOWN ' + time + '\r\n';
+                    message = '\r\n'+'IS DOWN ' + time + '\r\n--------\r\n';
                     htmlLog = '<div style="background-color: brown">IS DOWN <text style="color: silver">' + time + '</text></div>';
 
                     downArr.forEach(function(unit) {
-                        message += arrAdIpEv[unit].address + ' ' + arrAdIpEv[unit].ip + '\r\n';
+                        message += arrAdIpEv[unit].address + '  http://' + arrAdIpEv[unit].ip + '\r\n';
                         htmlLog += '<div style="color: brown">' + arrAdIpEv[unit].address + ' ' + arrAdIpEv[unit].ip + '</div>';
                     });
 
-                    message += '--------'+'\r\n'+'IS UP ' + time + '\r\n';
+                    message += '--------'+'\r\n'+'IS UP ' + time + '\r\n--------\r\n';
                     htmlLog += '<div style="background-color: green">IS UP <text style="color: silver">' + time + '</text></div>';
 
                     upArr.forEach(function(unit) {
-                        message += arrAdIpEv[unit].address + ' ' + arrAdIpEv[unit].ip + '\r\n';
+                        message += arrAdIpEv[unit].address + '  http://' + arrAdIpEv[unit].ip + '\r\n';
                         htmlLog += '<div style="color: green">' + arrAdIpEv[unit].address + ' ' + arrAdIpEv[unit].ip + '</div>';
                     });
 
                     htmlStatusAddSortUp = formHtmlStatus(oldFallen, 'addrup');
                     sendMail(message);
-                    fs.appendFileSync(__dirname + '/log.txt', htmlLog);
+                    fs.appendFileSync(__dirname + '/data/log.txt', htmlLog);
                 /**Case 2*/
                 } else if (downArr.length == 0 && upArr.length != 0) {
                     sortArr(upArr, 'addrup');
-                    message = '\r\n'+'IS UP ' + time + '\r\n';
+                    message = '\r\n'+'IS UP ' + time + '\r\n--------\r\n';
                     htmlLog = '<div style="background-color: green">IS UP <text style="color: silver">' + time + '</text></div>';
 
                     upArr.forEach(function(unit) {
-                        message += arrAdIpEv[unit].address + ' ' + arrAdIpEv[unit].ip + '\r\n';
+                        message += arrAdIpEv[unit].address + '  http://' + arrAdIpEv[unit].ip + '\r\n';
                         htmlLog += '<div style="color: green">' + arrAdIpEv[unit].address + ' ' + arrAdIpEv[unit].ip + '</div>';
                     });
 
                     htmlStatusAddSortUp = formHtmlStatus(oldFallen, 'addrup');
                     sendMail(message);
-                    fs.appendFileSync(__dirname + '/log.txt', htmlLog);
+                    fs.appendFileSync(__dirname + '/data/log.txt', htmlLog);
                 /**Case 3*/
                 } else if (downArr.length != 0 && upArr.length == 0) {
                     sortArr(downArr, 'addrup');
-                    message = '\r\n'+'IS DOWN ' + time + '\r\n';
+                    message = '\r\n'+'IS DOWN ' + time + '\r\n--------\r\n';
                     htmlLog = '<div style="background-color: brown">IS DOWN <text style="color: silver">' + time + '</text></div>';
 
                     downArr.forEach(function(unit) {
-                        message += arrAdIpEv[unit].address + ' ' + arrAdIpEv[unit].ip + '\r\n';
+                        message += arrAdIpEv[unit].address + '  http://' + arrAdIpEv[unit].ip + '\r\n';
                         htmlLog += '<div style="color: brown">' + arrAdIpEv[unit].address + ' ' + arrAdIpEv[unit].ip + '</div>';
                     });
 
                     htmlStatusAddSortUp = formHtmlStatus(oldFallen, 'addrup');
                     sendMail(message);
-                    fs.appendFileSync(__dirname + '/log.txt', htmlLog);
+                    fs.appendFileSync(__dirname + '/data/log.txt', htmlLog);
                 }
             });
         /**Return promise, need it for force update*/
@@ -377,7 +383,7 @@ function pingAll() {
 app.use(express.static(__dirname + '/www'));
 /**Send log*/
 app.post('/log', function(request, response) {
-    response.send(fs.readFileSync(__dirname + '/log.txt'));
+    response.send(fs.readFileSync(__dirname + '/data/log.txt'));
 });
 /**send lastEvent & current time*/
 app.post('/chek', function(request, response) {
@@ -443,7 +449,7 @@ app.post('/set_conf', function(request, response) {
 
     if (request.body.type == 'refreshTime' || request.body.type == 'mail') {
         config = JSON.parse(request.body.jsonData);
-        fs.writeFileSync(__dirname + '/config.ini', request.body.jsonData);
+        fs.writeFileSync(__dirname + '/data/config.ini', request.body.jsonData);
 
         if (request.body.type == 'refreshTime') {
             clearInterval(timer);
@@ -461,7 +467,7 @@ app.post('/set_conf', function(request, response) {
         } else {
             arrAdIpEv.push({address: request.body.address, ip: request.body.ip});
             lastEvent = new Date;
-            fs.writeFileSync(__dirname + '/db.txt', JSON.stringify(arrAdIpEv, ["address", "ip"]));
+            fs.writeFileSync(__dirname + '/data/db.json', JSON.stringify(arrAdIpEv, ["address", "ip"]));
             response.send('Success');
         }
 
@@ -495,7 +501,7 @@ app.post('/set_conf', function(request, response) {
 
                 htmlStatusAddSortUp = formHtmlStatus(oldFallen, 'addrup');
                 lastEvent = new Date;
-                fs.writeFileSync(__dirname + '/db.txt', JSON.stringify(arrAdIpEv, ["address", "ip"]));
+                fs.writeFileSync(__dirname + '/data/db.json', JSON.stringify(arrAdIpEv, ["address", "ip"]));
                 status = true;
 
                 break;

@@ -1,0 +1,21 @@
+{
+  "name": "npinger",
+  "version": "1.0.0",
+  "description": "ping hosts and form messages, etc.",
+  "main": "pinger.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rocko-n/nPinger.git"
+  },
+  "author": "rocko-n",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.4",
+    "nodemailer": "^4.1.0",
+    "tcp-ping": "^0.1.1"
+  }
+}

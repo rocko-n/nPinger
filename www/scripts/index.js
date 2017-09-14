@@ -1,4 +1,4 @@
-$(function () {
+$(function() {
     /**
      * Current server time (needed for duration, recieved from server)
      * @type {Date}
@@ -33,13 +33,13 @@ $(function () {
     var infoText;
 
     /**Function calls*/
-    ifSomethingHappend();
+    ifSomethingHappened();
 
     /**Get config*/
     $.post('/get_conf', '', function (data) {
         /**parse JSON string to object*/
         config = JSON.parse(data);
-        setInterval(ifSomethingHappend, config.refreshTime*1000);
+        setInterval(ifSomethingHappened, config.refreshTime*1000);
     });
 
     /**Change info message*/
@@ -160,15 +160,16 @@ $(function () {
         if (time < 60) {
             resTime = time + 's';
         } else if (time >= 60 && time < 3600) {
-            resTime = (time/60).toFixed() + 'm' + time % 60 + 's';
+            resTime = Math.floor(time/60) + 'm ' + time % 60 + 's';
         } else if (time >= 3600 && time < 86400) {
-            resTime = (time/3600).toFixed() + 'h' + ((time % 3600)/60).toFixed() + 'm' + (time % 3600) % 60 + 's';
+            resTime = Math.floor(time/3600) + 'h ' + Math.floor((time % 3600)/60) + 'm ' + (time % 3600) % 60 + 's';
         } else {
-            resTime = (time/86400).toFixed() + 'd' + ((time % 86400)/3600).toFixed() + 'h' + (((time % 86400)%3600)/60).toFixed() + 'm' + ((time % 86400) % 3600) % 60 + 's';
+            resTime = Math.floor(time/86400) + 'd ' + Math.floor((time % 86400)/3600) + 'h ' + Math.floor(((time % 86400)%3600)/60) + 'm ' + ((time % 86400) % 3600) % 60 + 's';
         }
 
         return resTime;
     }
+
     /**
      * Recieve status-data from server
      * @returns {Promise}
@@ -189,7 +190,7 @@ $(function () {
      * Recieve lastEvent time from server and if something new has happend - recieve new status-data
      * @returns {Promise}
      */
-    function ifSomethingHappend() {
+    function ifSomethingHappened() {
 
         return $.post('/chek', 'give_me_lastEvent', function (data) {
             serverTime = new Date(data.now);
@@ -211,7 +212,7 @@ $(function () {
                     $(this).text(timer(time));
                 });
 
-                console.log('nothing new has happend');
+                console.log('nothing new has happened');
             }
         });
 
